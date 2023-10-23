@@ -73,6 +73,15 @@ app.put("/notes/:id", async (req, res) => {
     const note = await Note.findById(noteId);
 
     res.json({ note: note });
+});
+
+// Delete a note
+app.delete("/notes/:id", async (req, res) => {
+    const noteId = req.params.id;
+
+    await Note.deleteOne({ _id: noteId });
+
+    res.json({success: "Record Deleted"})
 })
 
 
