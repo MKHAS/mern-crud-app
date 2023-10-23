@@ -22,11 +22,24 @@ app.get('/', (req, res) => {
     res.json({ hello: "world" });
 });
 
-app.get('/notes', (req, res) => {
+//Retreive all the notes
+app.get('/notes', async (req, res) => {
     // Fine Notes
+    const notes = await Note.find();
     // Respond with them
-})
+    res.json({ notes: notes });
+});
 
+app.get('/notes/:id', async (req, res) => {
+    //get id off the url
+    const noteId = req.params.id;
+    //find note using the id
+    const note = await Note.findById(noteId);
+    //respond with the note
+    res.json({note: note});
+}); 
+
+// Create a new note
 app.post("/notes", async (req, res) => {
     //get the sent in data off the request body
     const title = req.body.title;
