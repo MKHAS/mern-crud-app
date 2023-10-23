@@ -30,11 +30,14 @@ app.get('/notes', async (req, res) => {
     res.json({ notes: notes });
 });
 
+// Retrieve a note by id
 app.get('/notes/:id', async (req, res) => {
     //get id off the url
     const noteId = req.params.id;
+
     //find note using the id
     const note = await Note.findById(noteId);
+    
     //respond with the note
     res.json({note: note});
 }); 
@@ -53,6 +56,24 @@ app.post("/notes", async (req, res) => {
     res.json({note: note})
 });
 
+// Update a note
+app.put("/notes/:id", async (req, res) => {
+    const noteId = req.params.id;
+
+    //get the data off the req body and update
+    const title = req.body.title;
+    const body = req.body.body;
+
+    await Note.findByIdAndUpdate(noteId, {
+        title: title,
+        body: body
+    })
+
+    //fetch updated note
+    const note = await Note.findById(noteId);
+
+    res.json({ note: note });
+})
 
 
 //Start our server
