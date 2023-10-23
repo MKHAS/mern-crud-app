@@ -9,6 +9,12 @@ function App() {
     body: "",
   });
 
+  const [updateForm, setUpdateForm] = useState({
+    _id: null,
+    title: "",
+    body: ""
+  });
+
   // Use Effect
   useEffect(() => {
     fetchNotes();
@@ -58,7 +64,50 @@ function App() {
     });
 
     setNotes(newNotes);
-  }
+  };
+
+  const handleUpdateFieldChange = async (e) => {
+    const {value, name} = e.target
+
+    setUpdateForm({
+      ...updateForm, 
+      [name]: value,
+    })
+  };
+
+  const toggleUpdate = (note) => {
+
+    //set state on update form
+    setUpdateForm({title: note.title, body: note.body, _id: note._id});
+  };
+
+  const updateNote = async (e) => {
+    e.preventDefault();
+
+    const { title, body } = updateForm;
+
+    // Send the update request 
+    const res = await axios.put(
+      `http://localhost:3000/notes/${updateForm._id}`,
+       {title, body}
+      );
+
+    // Update state
+    const newNotes = [...notes];
+    const noteIndex = notes.findIndex((note) => {
+      return note._id === updateForm._id;
+    });
+    
+    newNotes[noteIndex] = res.data.note;
+    setNotes(newNotes);
+
+    // Clear update from state
+    setUpdateForm({
+      _id: null,
+      title: "",
+      body: ""
+    });
+  };
 
   return (
     <div className="App">
@@ -70,12 +119,35 @@ function App() {
             <div key={note._id} >
               <h3>{note.title}</h3>
               
-              <button onClick={() => { deleteNote(note._id)}}>Delete Note</button>
+              <button onClick={() => { deleteNote(note._id)}}>
+                Delete Note
+              </button>
+              <button onClick={() => { toggleUpdate(note) }}>Update Note</button>
+
             </div>);
         })}
       </div>
 
-      <div>
+        {updateForm._id && (
+        <div>
+          <h2>Update Note</h2>
+          <form onSubmit={updateNote} >
+            <input
+             onChange={handleUpdateFieldChange}
+             value={updateForm.title}
+             name="title"
+             />
+            <textarea 
+              onChange={handleUpdateFieldChange}
+              value={updateForm.body}
+              name="body"
+              />
+            <button type="submit">Update Note</button>
+          </form>
+        </div>
+        )}
+
+      {!updateForm._id && (<div>
         <h2>Create Note</h2>
         <form onSubmit={createNote}>
           <input
@@ -90,7 +162,8 @@ function App() {
           />
           <button type="submit"> Create Note </button>
         </form>
-      </div>
+      </div>)}
+
     </div>
   );
 }
